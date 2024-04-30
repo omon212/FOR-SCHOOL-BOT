@@ -9,7 +9,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from keyboards.default import keyboard_def  # assuming you have a keyboard definition
 from config import *
 
-connect = sqlite3.connect(DB, check_same_thread=False)
+connect = sqlite3.connect("/home/sharif/PycharmProjects/FOR SCHOOL BOT/db.sqlite3", check_same_thread=False)
 cursor = connect.cursor()
 
 API_TOKEN = TOKEN
@@ -31,13 +31,14 @@ async def process_start_command(message: types.Message):
     await message.answer("Добро Пожаловать", reply_markup=keyboard_def)
 
 
-@dp.message_handler(text="Расписание классов")
+@dp.message_handler(text="Расписание клас"
+                         "сов")
 async def class_schedule(message: types.Message, state: FSMContext):
     await message.delete()
-    button_list = [InlineKeyboardButton(text=str(i), callback_data=str(i)) for i in range(1, 12)]
+    button_list = [InlineKeyboardButton(text=str(i) + " " + "класс", callback_data=str(i)) for i in range(1, 12)]
     keyboard = InlineKeyboardMarkup(row_width=1)
     keyboard.add(*button_list, )
-    await message.answer("Sinflardan birini tanlang:", reply_markup=keyboard)
+    await message.answer("Выберите ваш класс : ", reply_markup=keyboard)
     await Shogirdchala.list_class.set()
 
 
