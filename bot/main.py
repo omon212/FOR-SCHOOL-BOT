@@ -10,15 +10,16 @@ from keyboards.default import keyboard_def  # assuming you have a keyboard defin
 
 # Set up logging
 # logging.basicConfig(level=logging.INFO)
-
+#a = f'C:/Users/steam/PycharmProjects/FOR-SCHOOL-BOT/'
 # Connect to SQLite database
-connect = sqlite3.connect('/home/sharif/PycharmProjects/FOR SCHOOL BOT/db.sqlite3', check_same_thread=False)
+connect = sqlite3.connect('C:/Users/steam/PycharmProjects/FOR-SCHOOL-BOT/db.sqlite3', check_same_thread=False)
 cursor = connect.cursor()
 
 # Bot token
 API_TOKEN = '7035105679:AAHcWXjb97wm2DyH8le5juzsHNT2G9hGHu4'
 
 # Initialize bot and dispatcher
+logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
@@ -36,7 +37,7 @@ class Shogirdchala(StatesGroup):
 # Handlers
 @dp.message_handler(commands='start')
 async def process_start_command(message: types.Message):
-    await message.answer("Start", reply_markup=keyboard_def)
+    await message.answer("Добро Пожаловать", reply_markup=keyboard_def)
 
 
 @dp.message_handler(text="Расписание классов")
@@ -72,9 +73,8 @@ async def classss(call: types.CallbackQuery, state: FSMContext):
     data = int(call.data)
     cursor.execute("SELECT * FROM UserApp_studentstable WHERE id = ?", (data,))
     result = cursor.fetchall()
-    print(result[0][3])
-    photo = open(f'/home/sharif/PycharmProjects/FOR SCHOOL BOT/{result[0][3]}', 'rb')
-    caption = f"Sinf raqami : {result[0][1]} {result[0][2]}"
+    photo = open(f'{result[0][3]}', 'rb')
+    caption = f"Класс: {result[0][1]} {result[0][2]}"
     await call.message.answer_photo(photo=photo, caption=caption)
     await state.finish()
 
@@ -86,25 +86,25 @@ async def list_teacherss(message: types.Message):
     if teachers_data:
         keyboard = InlineKeyboardMarkup(row_width=4)
         for i in teachers_data:
+            print(i)
             button = InlineKeyboardButton(text=str(i[1]), callback_data=str(i[1]))
             keyboard.add(button)
-        await message.answer("Ustozlar royhati", reply_markup=keyboard)
+        await message.answer("Список Учителей", reply_markup=keyboard)
         await Shogirdchala.teacher_data.set()
     else:
-        await message.answer("Hali ustozlar royhati ma'lumotlari mavjud emas.")
+        await message.answer("Error!\nРасписание для учителя в данный момент отсутствует")
 
 
 @dp.callback_query_handler(state=Shogirdchala.teacher_data)
-async def teacheddata(call: types.CallbackQuery,state:FSMContext):
+async def teacheddata(call: types.CallbackQuery, state: FSMContext):
     await call.message.delete()
     data = str(call.data)
-    result = cursor.execute("SELECT * FROM UserApp_teachertablemodel WHERE fio_teacher = ?", (data, )).fetchone()
-    photo = open(f'/home/sharif/PycharmProjects/FOR SCHOOL BOT/{result[2]}', 'rb')
-    await call.message.answer_photo(photo=photo,caption=f"""
-FIo teacher: {result[1]}    
+    result = cursor.execute("SELECT * FROM UserApp_teachertablemodel WHERE fio_teacher = ?", (data,)).fetchone()
+    photo = open(f'{result[2]}', 'rb')
+    await call.message.answer_photo(photo=photo, caption=f"""
+ФИО: {result[1]}    
     """)
     await state.finish()
-
 
 
 @dp.message_handler(text='Время Звонков')
@@ -115,20 +115,20 @@ async def chiqishvaqt(message: types.Message):
     for i in data:
         button = InlineKeyboardButton(text=str(i[1]), callback_data=str(i[0]))
         keyboard.add(button)
-    await message.answer("Vremya zvanok:", reply_markup=keyboard)
+    await message.answer("Время звонков:", reply_markup=keyboard)
     await Shogirdchala.zvanok.set()
 
+
 @dp.callback_query_handler(state=Shogirdchala.zvanok)
-async def zvanokjadval(call:types.CallbackQuery,state:FSMContext):
+async def zvanokjadval(call: types.CallbackQuery, state: FSMContext):
     await call.message.delete()
     data = int(call.data)
-    i = cursor.execute("SELECT * FROM UserApp_calltimesmodel where id = ?",(data,)).fetchone()
-    photo = open(f'/home/sharif/PycharmProjects/FOR SCHOOL BOT/{i[2]}', 'rb')
+    i = cursor.execute("SELECT * FROM UserApp_calltimesmodel where id = ?", (data,)).fetchone()
+    photo = open(f'C:/Users/steam/PycharmProjects/FOR-SCHOOL-BOT/{i[2]}', 'rb')
     await call.message.answer_photo(photo=photo, caption=f"""
-Kun: {i[1]}     
+День: {i[1]}     
     """)
     await state.finish()
-
 
 
 if __name__ == '__main__':
