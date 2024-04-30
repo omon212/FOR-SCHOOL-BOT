@@ -7,26 +7,17 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from keyboards.default import keyboard_def  # assuming you have a keyboard definition
+from config import *
 
-# Set up logging
-# logging.basicConfig(level=logging.INFO)
-#a = f'C:/Users/steam/PycharmProjects/FOR-SCHOOL-BOT/'
-# Connect to SQLite database
-connect = sqlite3.connect('C:/Users/steam/PycharmProjects/FOR-SCHOOL-BOT/db.sqlite3', check_same_thread=False)
+connect = sqlite3.connect(DB, check_same_thread=False)
 cursor = connect.cursor()
 
-# Bot token
-API_TOKEN = '7035105679:AAHcWXjb97wm2DyH8le5juzsHNT2G9hGHu4'
+API_TOKEN = TOKEN
 
-# Initialize bot and dispatcher
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
-
-# dp.middleware.setup(LoggingMiddleware())
-
-# States definition
 class Shogirdchala(StatesGroup):
     list_class = State()
     class_data = State()
@@ -73,7 +64,7 @@ async def classss(call: types.CallbackQuery, state: FSMContext):
     data = int(call.data)
     cursor.execute("SELECT * FROM UserApp_studentstable WHERE id = ?", (data,))
     result = cursor.fetchall()
-    photo = open(f'{result[0][3]}', 'rb')
+    photo = open(f'{UPLOADS}{result[0][3]}', 'rb')
     caption = f"Класс: {result[0][1]} {result[0][2]}"
     await call.message.answer_photo(photo=photo, caption=caption)
     await state.finish()
@@ -86,7 +77,6 @@ async def list_teacherss(message: types.Message):
     if teachers_data:
         keyboard = InlineKeyboardMarkup(row_width=4)
         for i in teachers_data:
-            print(i)
             button = InlineKeyboardButton(text=str(i[1]), callback_data=str(i[1]))
             keyboard.add(button)
         await message.answer("Список Учителей", reply_markup=keyboard)
@@ -100,7 +90,7 @@ async def teacheddata(call: types.CallbackQuery, state: FSMContext):
     await call.message.delete()
     data = str(call.data)
     result = cursor.execute("SELECT * FROM UserApp_teachertablemodel WHERE fio_teacher = ?", (data,)).fetchone()
-    photo = open(f'{result[2]}', 'rb')
+    photo = open(f'{UPLOADS}{result[2]}', 'rb')
     await call.message.answer_photo(photo=photo, caption=f"""
 ФИО: {result[1]}    
     """)
@@ -124,7 +114,7 @@ async def zvanokjadval(call: types.CallbackQuery, state: FSMContext):
     await call.message.delete()
     data = int(call.data)
     i = cursor.execute("SELECT * FROM UserApp_calltimesmodel where id = ?", (data,)).fetchone()
-    photo = open(f'C:/Users/steam/PycharmProjects/FOR-SCHOOL-BOT/{i[2]}', 'rb')
+    photo = open(f'{UPLOADS}{i[2]}', 'rb')
     await call.message.answer_photo(photo=photo, caption=f"""
 День: {i[1]}     
     """)
