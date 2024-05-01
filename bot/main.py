@@ -6,10 +6,10 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from keyboards.default import keyboard_def  # assuming you have a keyboard definition
-from config import *
+from keyboards.default import keyboard_def
+from config import DB,TOKEN,UPLOADS
 
-connect = sqlite3.connect("/home/sharif/PycharmProjects/FOR SCHOOL BOT/db.sqlite3", check_same_thread=False)
+connect = sqlite3.connect(DB, check_same_thread=False)
 cursor = connect.cursor()
 
 API_TOKEN = TOKEN
